@@ -13,3 +13,4 @@ include(Dependencies.cmake)
 # Projects
 add_subdirectory(Core)
 add_subdirectory(App)
+add_subdirectory(TetrisApp)
