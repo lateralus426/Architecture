@@ -15,10 +15,10 @@ PieceType GameState::RandomPieceType() {
 }
 
 void GameState::LoadPiece(PieceType type) {
-    currentType = type;
+    m_CurrentType = type;
     m_CurrentCells = BASE_CELLS[static_cast<int>(type)];
-    currentRow = 0;
-    currentCol = BOARD_WIDTH / 2 - 1;
+    m_CurrentRow = 0;
+    m_CurrentCol = BOARD_WIDTH / 2 - 1;
 }
 
 
@@ -44,10 +44,10 @@ bool GameState::IsValidPosition(int row, int col, const std::vector<std::pair<in
 
 void GameState::PlacePiece() {
     for (auto& [dr, dc] : m_CurrentCells) {
-        int r = currentRow + dr;
-        int c = currentCol + dc;
+        int r = m_CurrentRow + dr;
+        int c = m_CurrentCol + dc;
         if (r >= 0 && r < BOARD_HEIGHT && c >= 0 && c < BOARD_WIDTH) {
-            m_Grid[r][c] = static_cast<int>(currentType) + 1;
+            m_Grid[r][c] = static_cast<int>(m_CurrentType) + 1;
         }
     }
 }
@@ -87,28 +87,36 @@ void GameState::ClearLines() {
 
 void GameState::MoveDown() {
     if (m_GameOver || m_Paused) return;
-    if (!IsValidPosition(currentRow + 1, currentCol, m_CurrentCells)) {
+    if (!IsValidPosition(m_CurrentRow + 1, m_CurrentCol, m_CurrentCells)) {
         PlacePiece();
         ClearLines();
         LoadPiece(m_NextType);
         LoadNextPiece();
     }
     else {
-        currentRow++;
+        m_CurrentRow++;
     }
 }
 
-void GameState::MoveLeft() {
-    if (m_GameOver || m_Paused) return;
-    if (IsValidPosition(currentRow, currentCol - 1, m_CurrentCells)) {
-        currentCol--;
+void GameState::MoveLeft() 
+{
+    if (m_GameOver || m_Paused) 
+        return;
+    
+    if (IsValidPosition(m_CurrentRow, m_CurrentCol - 1, m_CurrentCells)) 
+    {
+        m_CurrentCol--;
     }
 }
 
-void GameState::MoveRight() {
-    if (m_GameOver || m_Paused) return;
-    if (IsValidPosition(currentRow, currentCol + 1, m_CurrentCells)) {
-        currentCol++;
+void GameState::MoveRight() 
+{
+    if (m_GameOver || m_Paused) 
+        return;
+    
+    if (IsValidPosition(m_CurrentRow, m_CurrentCol + 1, m_CurrentCells))
+    {
+        m_CurrentCol++;
     }
 }
 
@@ -116,17 +124,17 @@ void GameState::Rotate() {
     if (m_GameOver || m_Paused) return;
 
     // O piece is a square — skip
-    if (currentType == PieceType::O) return;
+    if (m_CurrentType == PieceType::O) return;
 
     std::vector<std::pair<int, int>> original = m_CurrentCells;
-    int originalRow = currentRow;
-    int originalCol = currentCol;
+    int originalRow = m_CurrentRow;
+    int originalCol = m_CurrentCol;
 
     std::vector<std::pair<int, int>> rotated;
 
     int pivotR = 0, pivotC = 0;
 
-    if (currentType == PieceType::I) {
+    if (m_CurrentType == PieceType::I) {
         pivotR = 1; pivotC = 0;
         if (m_iRotationToggle % 2 == 0) {
             // Counter-clockwise
@@ -162,22 +170,22 @@ void GameState::Rotate() {
         for (int cOff : colOffsets) {
             m_CurrentCells = rotated;
             if (IsValidPosition(originalRow + rOff, originalCol + cOff, m_CurrentCells)) {
-                currentRow = originalRow + rOff;
-                currentCol = originalCol + cOff;
+                m_CurrentRow = originalRow + rOff;
+                m_CurrentCol = originalCol + cOff;
                 return;
             }
         }
     }
 
     m_CurrentCells = original;
-    currentRow = originalRow;
-    currentCol = originalCol;
+    m_CurrentRow = originalRow;
+    m_CurrentCol = originalCol;
 }
 
 void GameState::HardDrop() {
     if (m_GameOver || m_Paused) return;
-    while (IsValidPosition(currentRow + 1, currentCol, m_CurrentCells)) {
-        currentRow++;
+    while (IsValidPosition(m_CurrentRow + 1, m_CurrentCol, m_CurrentCells)) {
+        m_CurrentRow++;
     }
     PlacePiece();
     ClearLines();

@@ -6,6 +6,11 @@ set(SOURCES
     src/main.cpp
     src/TetrisAppLayer.h
     src/TetrisAppLayer.cpp
+    src/Models.h
+    src/Models.cpp
+    src/gl_loader.h
+    src/GUILayer.h
+    src/GUILayer.cpp
     #src/VoidLayer.h
     #src/VoidLayer.cpp
     #src/OverlayLayer.h

@@ -6,8 +6,10 @@ int main()
 {
     Core::ApplicationSpecification appSpec;
     appSpec.Name = "TetrisGL";
-    appSpec.WindowSpec.Width = 1920;
-    appSpec.WindowSpec.Height = 1080;
+    int width = 1024;
+    int height = 768;
+    appSpec.WindowSpec.Width = width;
+    appSpec.WindowSpec.Height = height;
 
     Core::Application application(appSpec);
 	application.PushLayer<TetrisAppLayer>();
@@ -17,3 +19,5 @@ int main()
 
     return 0;
 }
+
+

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef GL_LOADER_H
-#define GL_LOADER_H
 
 // Cross-platform OpenGL loader
 // Supports: Desktop OpenGL (Windows/Linux) and OpenGL ES (Raspberry Pi)
@@ -15,4 +13,3 @@
 //#include <GL/glew.h> -> //this hshould be moved in the renderer class and switch to glad
 #endif
 
-#endif // GL_LOADER_H
