@@ -29,7 +29,7 @@ add_compile_definitions(
 )
 
 target_link_libraries(TetrisGL Core)
-
+target_link_libraries(TetrisGL imgui)
 target_include_directories(TetrisGL PRIVATE src)
 
 # Set working directory for VS debugger

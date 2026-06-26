@@ -175,46 +175,46 @@ void TetrisAppLayer::OnUpdate(float ts)
 	}
 
 	// Auto-drop (gravity)
-        if (!m_GameState.m_GameOver && !m_GameState.m_Paused) {
-            if ((m_CurrentTime - m_GameState.m_LastDropTime) * 1000.0f > m_GameState.m_DropInterval) {
-                m_GameState.MoveDown();
-                m_GameState.m_LastDropTime = m_CurrentTime;
-            }
+    if (!m_GameState.m_GameOver && !m_GameState.m_Paused) {
+        if ((m_CurrentTime - m_GameState.m_LastDropTime) * 1000.0f > m_GameState.m_DropInterval) {
+            m_GameState.MoveDown();
+            m_GameState.m_LastDropTime = m_CurrentTime;
         }
+    }
 
-        // Continuous soft drop: DOWN fires every frame while held
-        //if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        //    if (!m_GameState.m_GameOver && !m_GameState.m_Paused) {
-        //        m_GameState.MoveDown();
-        //        m_GameState.m_LastDropTime = m_CurrentTime;
+    // Continuous soft drop: DOWN fires every frame while held
+    //if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+    //    if (!m_GameState.m_GameOver && !m_GameState.m_Paused) {
+    //        m_GameState.MoveDown();
+    //        m_GameState.m_LastDropTime = m_CurrentTime;
+    //    }
+    //}
+
+    // One-shot keys: trigger once per press
+    for (int i = 0; i <= GLFW_KEY_LAST; ++i) 
+	{
+            
+        //bool pressed = (glfwGetKey(window, i) == GLFW_PRESS);
+
+        //if (pressed && !keysTriggered[i]) {
+        //    if (i == GLFW_KEY_LEFT) { m_GameState.MoveLeft(); }
+        //    else if (i == GLFW_KEY_RIGHT) { m_GameState.MoveRight(); }
+        //    else if (i == GLFW_KEY_UP) { m_GameState.Rotate(); }
+        //    else if (i == GLFW_KEY_SPACE) { m_GameState.HardDrop(); }
+        //    else if (i == GLFW_KEY_P) { m_GameState.m_Paused = !m_GameState.m_Paused; }
+        //    else if (i == GLFW_KEY_R) {
+        //        if (m_GameState.m_GameOver) {
+        //            m_GameState.Init();
+        //            m_GameState.m_LastDropTime = m_CurrentTime;
+        //        }
         //    }
+        //    keysTriggered[i] = true;
         //}
 
-        // One-shot keys: trigger once per press
-        for (int i = 0; i <= GLFW_KEY_LAST; ++i) 
-		{
-            
-            //bool pressed = (glfwGetKey(window, i) == GLFW_PRESS);
-
-            //if (pressed && !keysTriggered[i]) {
-            //    if (i == GLFW_KEY_LEFT) { m_GameState.MoveLeft(); }
-            //    else if (i == GLFW_KEY_RIGHT) { m_GameState.MoveRight(); }
-            //    else if (i == GLFW_KEY_UP) { m_GameState.Rotate(); }
-            //    else if (i == GLFW_KEY_SPACE) { m_GameState.HardDrop(); }
-            //    else if (i == GLFW_KEY_P) { m_GameState.m_Paused = !m_GameState.m_Paused; }
-            //    else if (i == GLFW_KEY_R) {
-            //        if (m_GameState.m_GameOver) {
-            //            m_GameState.Init();
-            //            m_GameState.m_LastDropTime = m_CurrentTime;
-            //        }
-            //    }
-            //    keysTriggered[i] = true;
-            //}
-
-            //if (!pressed) {
-            //    keysTriggered[i] = false; // reset so next press can fire
-            //}
-        }
+        //if (!pressed) {
+        //    keysTriggered[i] = false; // reset so next press can fire
+        //}
+    }
 
 
 
@@ -282,7 +282,7 @@ void TetrisAppLayer::OnRender()
     glm::vec2 framebufferSize = Core::Application::Get().GetFramebufferSize();
     float aspect = framebufferSize.x / framebufferSize.y;
 
-	m_Angle += m_Time*0.01f;
+	m_Angle += m_Time*0.001f;
 
 
 
@@ -298,7 +298,7 @@ void TetrisAppLayer::OnRender()
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, (GLsizei)framebufferSize.x, (GLsizei)framebufferSize.y);
-    glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+    glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glDisable(GL_CULL_FACE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

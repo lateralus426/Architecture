@@ -166,10 +166,13 @@ void GameState::Rotate() {
     // Wall kicks
     int colOffsets[] = { 0, 1, -1, 2, -2 };
     int rowOffsets[] = { 0, 1, -1, 2, -2 };
-    for (int rOff : rowOffsets) {
-        for (int cOff : colOffsets) {
+    for (int rOff : rowOffsets) 
+    {
+        for (int cOff : colOffsets) 
+        {
             m_CurrentCells = rotated;
-            if (IsValidPosition(originalRow + rOff, originalCol + cOff, m_CurrentCells)) {
+            if (IsValidPosition(originalRow + rOff, originalCol + cOff, m_CurrentCells)) 
+            {
                 m_CurrentRow = originalRow + rOff;
                 m_CurrentCol = originalCol + cOff;
                 return;

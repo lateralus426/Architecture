@@ -1,20 +1,55 @@
+#include <iostream>
 #include "GUILayer.h"
 
+#include "Core/Window.h"
+
+
+#ifdef USE_OPENGL
+    //#include <glad/glad.h>  // Initialize with gladLoadGL()
+    //#include "imgui_impl_glfw.h"
+#elif defined(USE_VULKAN)
+    #include "imgui_impl_glfw.h"
+    #include "imgui_impl_vulkan.h"
+#elif defined(USE_DX9)
+    #include "imgui_impl_win32.h"
+    #include "imgui_impl_dx9.h"
+#elif defined(USE_DX10)
+    #include "imgui_impl_win32.h"
+    #include "imgui_impl_dx10.h"
+#elif defined(USE_DX11)
+    #include "imgui_impl_win32.h"
+    #include "imgui_impl_dx11.h"
+#elif defined(USE_DX12)
+    #include "imgui_impl_win32.h"
+    #include "imgui_impl_dx12.h"
+#endif
+
+#if OPENGL_VERSION GREATER_EQUAL 3
+#include "imgui_impl_opengl3.h"
+#elif OPENGL_VERSION STREQUAL "2"
+#include "imgui_impl_opengl2.h"
+#endif
 
 GUILayer::GUILayer()
 {
     // Setup Dear ImGui context
-    //IMGUI_CHECKVERSION();
-    //ImGui::CreateContext();
-    //ImGuiIO& io = ImGui::GetIO(); (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+    std::cout << "GUILayer::GUILayer()\n";
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); 
+    // (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
     // Setup Dear ImGui style
-    //ImGui::StyleColorsDark();
+    ImGui::StyleColorsDark();
 
     // Setup Platform/Renderer bindings
+#if defined(IMGUI_IMPL_OPENGL_LOADER_GLAD)
     //ImGui_ImplGlfw_InitForOpenGL(window, true);
     //ImGui_ImplOpenGL3_Init("#version 330");
+#endif
 }
 
 GUILayer::~GUILayer()

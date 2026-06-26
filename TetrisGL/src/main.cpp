@@ -1,6 +1,7 @@
 #include<iostream>
 #include "Core/Application.h"
 #include "TetrisAppLayer.h"
+#include "GUILayer.h"
 
 int main() 
 {
@@ -13,6 +14,7 @@ int main()
 
     Core::Application application(appSpec);
 	application.PushLayer<TetrisAppLayer>();
+	application.PushLayer<GUILayer>();
     application.Run();
 
     std::cout << "Hello, Tetris!" << std::endl;
