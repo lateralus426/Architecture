@@ -1,7 +1,6 @@
 #include <iostream>
 #include "GUILayer.h"
 
-#include "Core/Window.h"
 
 
 #ifdef USE_OPENGL

@@ -33,8 +33,12 @@ add_compile_definitions(
     GLFW_INCLUDE_NONE
 )
 
-target_link_libraries(Core glfw)
-target_link_libraries(Core glad)
-target_link_libraries(Core glm)
+target_link_libraries(Core PUBLIC glfw)
+target_link_libraries(Core PUBLIC glad)
+target_link_libraries(Core PUBLIC glm)
+
+if(ARCHTETRIS_GLFW_INCLUDE_DIR)
+    target_include_directories(Core PUBLIC "${ARCHTETRIS_GLFW_INCLUDE_DIR}")
+endif()
 
 target_include_directories(Core PUBLIC "Source" "vendor/stb")

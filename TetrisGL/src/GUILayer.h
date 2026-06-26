@@ -1,12 +1,13 @@
 #pragma once
 
-//#include "imgui.h"
-//#include "imgui_impl_glfw.h"
-//#include "imgui_impl_opengl3.h"  // Same file works for GL 3.3 AND ES 2.0/3.0
+//#include "Core/Window.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"  // Same file works for GL 3.3 AND ES 2.0/3.0
 
 #include "Core/Application.h"
 #include <glm/glm.hpp>
-#include "imgui.h"
+//#include "imgui.h"
 
 
 namespace Core {
@@ -14,9 +15,11 @@ namespace Core {
 	class MouseMovedEvent;
 	class WindowClosedEvent;
 };
+
 class GUILayer : public Core::Layer
 {
 public:
+
 	GUILayer();
 	virtual ~GUILayer();
 
