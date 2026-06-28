@@ -11,7 +11,21 @@ namespace Core {
 	class WindowClosedEvent;
 };
 
+struct Camera {
+    glm::vec3 m_Position;
+    glm::vec3 m_Direction;
+    glm::vec3 m_Up;
 
+    // Camera parameters
+    float m_Fov;
+    float m_AspectRatio;
+    float m_NearPlane;
+    float m_FarPlane;
+
+    glm::mat4x4 m_View;
+    glm::mat4x4 m_Projection;
+    glm::ivec2 ScreenSize;
+};
 
 class TetrisAppLayer : public Core::Layer
 {
@@ -34,11 +48,13 @@ private:
 
     float m_Time = 0.0f;
     float m_Angle = 0.0f;
+	float m_Speed = 90.0f; // degrees per second
     float m_CurrentTime = 0.0f;
     glm::vec2 m_MousePosition{ 0.0f };
     glm::vec2 m_FlamePosition{ 0.0f };
     struct GameState m_GameState;
 
+	Camera m_Camera;
 
 public:
     inline float WorldX(int gx) { return gx - BOARD_WIDTH / 2.0f + CELL_SIZE / 2.0f; }

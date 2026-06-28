@@ -43,6 +43,23 @@ TetrisAppLayer::TetrisAppLayer()
 	glCreateVertexArrays(1, &m_VertexArray);  // vertex array object (VAO)
 	glCreateBuffers(1, &m_VertexBuffer);
     
+	m_Camera.m_Position = glm::vec3(0.0f, 0.0f, -5.0f);
+    m_Camera.m_Direction = glm::vec3(0.0f, 0.0f, 1.0f);
+    m_Camera.m_Up = glm::vec3(0.0f, 1.0f, 0.0f);
+    m_Camera.m_Fov = 45.0f;
+    glm::vec2 framebufferSize = Core::Application::Get().GetFramebufferSize();
+    float aspect = framebufferSize.x / framebufferSize.y;
+    m_Camera.m_AspectRatio = aspect;
+    m_Camera.m_NearPlane = 0.1f;
+    m_Camera.m_FarPlane = 100.0f;
+	m_Camera.ScreenSize = glm::ivec2(framebufferSize.x, framebufferSize.y);
+
+    glm::mat4 view = glm::lookAt(m_Camera.m_Position, m_Camera.m_Position + m_Camera.m_Direction, m_Camera.m_Up);
+    glm::mat4 projection = glm::perspective(glm::radians(m_Camera.m_Fov), m_Camera.m_AspectRatio, m_Camera.m_NearPlane, m_Camera.m_FarPlane);
+
+    m_Camera.m_View = view;
+    m_Camera.m_Projection = projection; 
+
 
 
 	struct Vertex
@@ -168,6 +185,13 @@ void TetrisAppLayer::OnUpdate(float ts)
 {
 	m_Time += ts;
 
+    m_Angle += ts *m_Speed;
+
+
+
+    m_Angle >= 360.0f ? m_Angle = 0.0f : m_Angle;
+
+
 	if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_1) == GLFW_PRESS)
 	{
 		std::println("Chanign Layer not Impement!");
@@ -279,39 +303,39 @@ void TetrisAppLayer::OnRender()
 
 void TetrisAppLayer::OnRender()
 {
-    glm::vec2 framebufferSize = Core::Application::Get().GetFramebufferSize();
-    float aspect = framebufferSize.x / framebufferSize.y;
+    //glm::vec2 framebufferSize = Core::Application::Get().GetFramebufferSize();
+    //float aspect = framebufferSize.x / framebufferSize.y;
 
-	m_Angle += m_Time*0.001f;
-
-
-
-	m_Angle >= 360.0f ? m_Angle = 0.0f : m_Angle;
 	//glm::mat4 model = glm::mat4(1.0f);
-	glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::degrees(m_Angle), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f);
-    glm::mat4 mvp = projection * view * model;
+	glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(m_Angle), glm::vec3(0.0f, 1.0f, 0.0f));
+    //glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
+    //glm::mat4 projection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f);
+    glm::mat4 mvp = m_Camera.m_Projection * m_Camera.m_View * model;
 
     glUseProgram(m_Shader);
     glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(mvp));
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, (GLsizei)framebufferSize.x, (GLsizei)framebufferSize.y);
-    glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//glDisable(GL_CULL_FACE);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, m_Camera.ScreenSize.x, m_Camera.ScreenSize.y);
+	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CCW);
+	glCullFace(GL_BACK);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindVertexArray(m_VertexArray);
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 
-    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
+	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
 }
 
 bool TetrisAppLayer::OnMouseButtonPressed(Core::MouseButtonPressedEvent& event)
 {
-	glm::vec2 framebufferSize = Core::Application::Get().GetFramebufferSize();
+	glm::vec2 framebufferSize = glm::vec2(m_Camera.ScreenSize);
 	float aspectRatio = framebufferSize.x / framebufferSize.y;
 	glm::vec2 normalizedMousePos = (m_MousePosition / framebufferSize) * 2.0f - 1.0f;
 	normalizedMousePos.x *= aspectRatio;
