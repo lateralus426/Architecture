@@ -92,7 +92,7 @@ if(USE_OPENGL OR USE_VULKAN)
 endif()
 
 if(USE_OPENGL)
-    if(OPENGL_VERSION STREQUAL "2")
+    if(OPENGL_TARGET_VERSION STREQUAL "2")
         list(APPEND IMGUI_SOURCES
             ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl2.cpp
         )

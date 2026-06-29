@@ -8,9 +8,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Backend selection
 option(USE_OPENGL "Enable OpenGL backend support" ON)
-set(OPENGL_VERSION "3" CACHE STRING "OpenGL version to target (2, 3, 4)")
-set_property(CACHE OPENGL_VERSION PROPERTY STRINGS 2 3 4)
-
+#set(OPENGL_VERSION "3" CACHE STRING "OpenGL version to target (2, 3, 4)")
 option(USE_DX9 "Enable DirectX 9 backend support" OFF)
 option(USE_DX10 "Enable DirectX 10 backend support" OFF)
 option(USE_DX11 "Enable DirectX 11 backend support" OFF)
@@ -26,8 +24,25 @@ if(NOT WIN32 AND (USE_DX9 OR USE_DX10 OR USE_DX11 OR USE_DX12))
 endif()
 
 if(USE_OPENGL)
-    add_compile_definitions(USE_OPENGL OPENGL_VERSION=${OPENGL_VERSION} IMGUI_IMPL_OPENGL_LOADER_GLAD)
+    set(OPENGL_TARGET_VERSION "460" CACHE STRING "OpenGL version (150 200 300 330, 400, 430, 450, 460)")
+    set_property(CACHE OPENGL_TARGET_VERSION PROPERTY STRINGS 150 200 300 330 400 430 450 460)
+
+    math(EXPR OPENGL_VERSION_MAJOR "${OPENGL_TARGET_VERSION} / 100")
+    math(EXPR OPENGL_VERSION_MINOR "(${OPENGL_TARGET_VERSION} % 100) / 10")
+    #add_compile_definitions(USE_OPENGL OPENGL_VERSION=${OPENGL_TARGET_VERSION} IMGUI_IMPL_OPENGL_LOADER_GLAD)
+
+    add_compile_definitions(
+        USE_OPENGL
+        OPENGL_VERSION=${OPENGL_TARGET_VERSION}
+        IMGUI_IMPL_OPENGL_LOADER_GLAD
+    )
+
+    message(STATUS "OpenGL target version: ${OPENGL_TARGET_VERSION}")
+    message(STATUS "[Test] Major: ${OPENGL_VERSION_MAJOR}, Minor: ${OPENGL_VERSION_MINOR}")
 endif()
+
+
+
 if(USE_DX9)
     add_compile_definitions(USE_DX9)
 endif()
