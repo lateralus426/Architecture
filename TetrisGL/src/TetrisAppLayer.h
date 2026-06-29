@@ -57,6 +57,7 @@ private:
 	Camera m_Camera;
 
 public:
+    const GameState& GetGameState() const { return m_GameState;}
     inline float WorldX(int gx) { return gx - BOARD_WIDTH / 2.0f + CELL_SIZE / 2.0f; }
     inline float WorldY(int gy) { return -gy + BOARD_HEIGHT / 2.0f - 0.5f; }
 
@@ -73,6 +74,12 @@ public:
 
     void Render(const GameState& state, int winW, int winH);
     void Init();
+
+    // cube 
+    void InitializeCube();
+    void UpdateCube();
+    void RenderCubeVertices();
+
 };
   /*
 

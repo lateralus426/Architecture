@@ -129,6 +129,11 @@ struct Vertex {
     float r, g, b;
 };
 
+//struct VertexVec
+//{
+//    glm::vec3 Position;
+//    glm::vec3 Color;
+//};
 const int VERTS_PER_QUAD = 6;
 
 // ==================== Main ====================

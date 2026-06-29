@@ -16,6 +16,8 @@ namespace Core {
 	class WindowClosedEvent;
 };
 
+struct GameState;
+
 class GUILayer : public Core::Layer
 {
 public:
@@ -31,6 +33,13 @@ private:
 	bool OnMouseButtonPressed(Core::MouseButtonPressedEvent& event);
 	bool OnMouseMoved(Core::MouseMovedEvent& event);
 	bool OnWindowClosed(Core::WindowClosedEvent& event);
+
+public:
+	void SetGameState(const GameState& gameState) {
+		// Store a reference to the game state
+		m_GameState = &gameState;
+	}
+
 private:
-	
+	const GameState* m_GameState; 	
 };
