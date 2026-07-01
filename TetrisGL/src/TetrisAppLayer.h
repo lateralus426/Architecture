@@ -45,6 +45,10 @@ private:
     uint32_t m_Shader = 0;
     uint32_t m_VertexArray = 0;
     uint32_t m_VertexBuffer = 0;  // handle to the vertex buffer object (VBO)
+    // TODO: change to uint32_t
+    uint32_t m_PosBuffer = 0;
+    uint32_t m_ColorBuffer = 0;
+    uint32_t m_IndexBuffer = 0;
 
     float m_Time = 0.0f;
     float m_Angle = 0.0f;
@@ -77,6 +81,7 @@ public:
 
     // cube 
     void InitializeCube();
+    void InitializeCubeV1();
     void UpdateCube();
     void RenderCubeVertices();
 

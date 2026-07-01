@@ -37,14 +37,12 @@ target_compile_definitions(Core PUBLIC
 )
 
 if(USE_OPENGL)
-
     target_compile_definitions(Core PUBLIC
         USE_OPENGL=1
         OPENGL_VERSION=${OPENGL_TARGET_VERSION}
         OPENGL_VERSION_MAJOR=${OPENGL_VERSION_MAJOR}
         OPENGL_VERSION_MINOR=${OPENGL_VERSION_MINOR}
     )
-
 endif()
 
 # -----------------------------

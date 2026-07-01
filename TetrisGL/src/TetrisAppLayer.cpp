@@ -56,24 +56,23 @@ TetrisAppLayer::TetrisAppLayer()
     m_Camera.m_View = view;
     m_Camera.m_Projection = projection;
 
-    
-
-    // Vertex vertices[] = {
-    //	{ {-1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } },  // Bottom-left
-    //	{ { 3.0f, -1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } },  // Bottom-right
-    //	{ {-1.0f,  3.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } }   // Top-left
-    // };
-
-    InitializeCube();
+    //InitializeCube();
+    InitializeCubeV1();
 }
 
 TetrisAppLayer::~TetrisAppLayer()
 {
     glDeleteVertexArrays(1, &m_VertexArray);
     glDeleteBuffers(1, &m_VertexBuffer);
+    glDeleteBuffers(1, &m_PosBuffer);
+    glDeleteBuffers(1, &m_ColorBuffer);
+    glDeleteBuffers(1, &m_IndexBuffer);
+
 
     glDeleteProgram(m_Shader);
 }
+
+
 
 void TetrisAppLayer::OnEvent(Core::Event &event)
 {
@@ -146,93 +145,51 @@ void TetrisAppLayer::OnUpdate(float ts)
         // }
     }
 }
-/*
-void TetrisAppLayer::OnRender()
-{
-    glUseProgram(m_Shader);
-
-    // Uniforms
-    //glUniform1f(0, m_Time);
-
-    glm::vec2 framebufferSize = Core::Application::Get().GetFramebufferSize();
-    //glUniform2f(1, framebufferSize.x, framebufferSize.y);
-
-    //glUniform2f(2, m_FlamePosition.x, m_FlamePosition.y);
-
-    //glViewport(0, 0, static_cast<GLsizei>(framebufferSize.x), static_cast<GLsizei>(framebufferSize.y));
-
-    // Render
-    //glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    //glClear(GL_COLOR_BUFFER_BIT);
-
-    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    //glBindVertexArray(m_VertexArray);
-    //glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    float aspect = framebufferSize.x / framebufferSize.y;
-
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 2.5f));
-    //glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.5f));
-    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    glm::mat4 projection = glm::perspective(glm::radians(60.0f), aspect, 0.1f, 1000.0f);
-    glm::mat4 mvp = projection * view * model;
-
-
-    //glm::mat4 model = glm::mat4(1.0f);
-    //glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.5f));
-
-    //float aspect = framebufferSize.x / framebufferSize.y;
-    //glm::mat4 projection = glm::perspective(glm::radians(60.0f), aspect, 0.1f, 100.0f);
-
-    //glm::mat4 mvp = projection * view * model;
-
-    //view = glm::mat4(1.0f);
-
-    glUseProgram(m_Shader);
-    glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(mvp));
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, static_cast<GLsizei>(framebufferSize.x), static_cast<GLsizei>(framebufferSize.y));
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glBindVertexArray(m_VertexArray);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
-
-
-}*/
 
 void TetrisAppLayer::OnRender()
 {
     // glm::vec2 framebufferSize = Core::Application::Get().GetFramebufferSize();
     // float aspect = framebufferSize.x / framebufferSize.y;
 
-    // glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(m_Angle), glm::vec3(0.0f, 1.0f, 0.0f));
-    // glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
-    // glm::mat4 projection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f);
-    glm::mat4 mvp = m_Camera.m_Projection * m_Camera.m_View * model;
+    //glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.5f));
+	//
+    //
+    //glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(m_Angle), glm::vec3(0.0f, 1.0f, 0.0f));
+    //model = glm::translate(model, glm::vec3(10.0f, 1.0f, -5.0f));
+    //// glm::mat4 projection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f);
+    //glm::mat4 mvp = m_Camera.m_Projection * m_Camera.m_View * model;
 
-    glUseProgram(m_Shader);
-    glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(mvp));
+    //glm::mat4 model(1.0f);
+    //model = glm::rotate(model, glm::radians(m_Angle), glm::vec3(0.0f, 1.0f, 0.0f));
+    //model[3] = glm::vec4(-5.0f, 5.0f, 10.0f, 1.0f); // translation column
+    ////model[0][3] = 2.0f; // column 0, row 1
+    ////model[1][3] = 5.0f; // column 2, row 3
+    ////model = (model, 2, glm::vec4(5.0f, 6.0f, 7.0f, 8.0f)); // third row
+    //glm::mat4 mvp = m_Camera.m_Projection * m_Camera.m_View * model;
+    //glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(mvp));
+    //
+    //
+    //glUseProgram(m_Shader);
+    //glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(mvp));
+    //
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //glViewport(0, 0, m_Camera.ScreenSize.x, m_Camera.ScreenSize.y);
+    //glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //
+    //glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_CULL_FACE);
+    //glFrontFace(GL_CCW);
+    //glCullFace(GL_BACK);
+    //
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //glBindVertexArray(m_VertexArray);
+    //// glDrawArrays(GL_TRIANGLES, 0, 3);
+    //
+    //// glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
+    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, m_Camera.ScreenSize.x, m_Camera.ScreenSize.y);
-    glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glFrontFace(GL_CCW);
-    glCullFace(GL_BACK);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glBindVertexArray(m_VertexArray);
-    // glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    // glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
+    RenderCubeVertices();
 }
 
 bool TetrisAppLayer::OnMouseButtonPressed(Core::MouseButtonPressedEvent &event)
@@ -654,25 +611,96 @@ void TetrisAppLayer::InitializeCube()
         4,
         5,
     };
+/*
+#if USE_OPENGL && OPENGL_VERSION_MAJOR == 1 
+    auto SetupCube_GL1 = []()
+    {
+        glEnable(GL_DEPTH_TEST);
 
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        gluPerspective(45.0, 1024.0 / 768.0, 0.1, 100.0);
+
+        glMatrixMode(GL_MODELVIEW);
+    };
+#elif USE_OPENGL && OPENGL_VERSION_MAJOR 2
+    auto setupCube_GL20 = [&](){
+        glEnable(GL_DEPTH_TEST);
+
+        //gProgram = CreateProgram(vs_20, fs_20); // assume helper exists
+
+        glGenBuffers(1, &m_PosBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, m_PosBuffer);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &m_ColorBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, m_ColorBuffer);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_colors), vertex_colors, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &m_IndexBuffer);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(triangle_indices), triangle_indices, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    };
+#elif USE_OPENGL && OPENGL_VERSION_MAJOR == 3
+    auto SetupCube_GL33 = [&]()
+        {
+            glEnable(GL_DEPTH_TEST);
+
+            
+
+            glGenVertexArrays(1, &m_VertexArray);
+            glBindVertexArray(m_VertexArray);
+
+            glGenBuffers(1, &m_PosBuffer);
+            glBindBuffer(GL_ARRAY_BUFFER, m_PosBuffer);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+            glEnableVertexAttribArray(0);
+
+            glGenBuffers(1, &m_ColorBuffer);
+            glBindBuffer(GL_ARRAY_BUFFER, m_ColorBuffer);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_colors), vertex_colors, GL_STATIC_DRAW);
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+            glEnableVertexAttribArray(1);
+
+            glGenBuffers(1, &m_IndexBuffer);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(triangle_indices), triangle_indices, GL_STATIC_DRAW);
+
+            glBindVertexArray(0);
+        };
+#endif
+
+#if USE_OPENGL && OPENGL_VERSION_MAJOR == 2 
+    setupCube_GL20();
+#elif USE_OPENGL && OPENGL_VERSION_MAJOR == 3 //3.3
+    SetupCube_GL33();
+
+#elif USE_OPENGL && OPENGL_VERSION_MAJOR >= 4
+
+#else */
     // VAO stores the attribute layout and buffer bindings
     glCreateVertexArrays(1, &m_VertexArray); //  this IS the VAO
 
     // VBOs the raw GPU buffers with your data
-    GLuint posBuffer, colorBuffer, indexBuffer;
-    glCreateBuffers(1, &posBuffer);   //  VBO #1: positions
-    glCreateBuffers(1, &colorBuffer); //  VBO #2: colors
-    glCreateBuffers(1, &indexBuffer); //  EBO: triangle indices
+    
+    glCreateBuffers(1, &m_PosBuffer);   //  VBO #1: positions
+    glCreateBuffers(1, &m_ColorBuffer); //  VBO #2: colors
+    glCreateBuffers(1, &m_IndexBuffer); //  EBO: triangle indices
 
     // Upload data into the VBOs (no binding needed with DSA)
-    glNamedBufferData(posBuffer, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glNamedBufferData(colorBuffer, sizeof(vertex_colors), vertex_colors, GL_STATIC_DRAW);
-    glNamedBufferData(indexBuffer, sizeof(triangle_indices), triangle_indices, GL_STATIC_DRAW);
+    glNamedBufferData(m_PosBuffer, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glNamedBufferData(m_ColorBuffer, sizeof(vertex_colors), vertex_colors, GL_STATIC_DRAW);
+    glNamedBufferData(m_IndexBuffer, sizeof(triangle_indices), triangle_indices, GL_STATIC_DRAW);
 
     // Wire the VBOs into the VAO
-    glVertexArrayVertexBuffer(m_VertexArray, 0, posBuffer, 0, 3 * sizeof(float));   //  VAO learns about VBO #1
-    glVertexArrayVertexBuffer(m_VertexArray, 1, colorBuffer, 0, 3 * sizeof(float)); //  VAO learns about VBO #2
-    glVertexArrayElementBuffer(m_VertexArray, indexBuffer);                         //  VAO learns about EBO
+    glVertexArrayVertexBuffer(m_VertexArray, 0, m_PosBuffer, 0, 3 * sizeof(float));   //  VAO learns about VBO #1
+    glVertexArrayVertexBuffer(m_VertexArray, 1, m_ColorBuffer, 0, 3 * sizeof(float)); //  VAO learns about VBO #2
+    glVertexArrayElementBuffer(m_VertexArray, m_IndexBuffer);                         //  VAO learns about EBO
 
     // glVertexArrayAttribBinding(m_VertexArray, 0, 0);
     // glVertexArrayAttribBinding(m_VertexArray, 1, 1);
@@ -686,12 +714,284 @@ void TetrisAppLayer::InitializeCube()
     glEnableVertexArrayAttrib(m_VertexArray, 1);
     glVertexArrayAttribFormat(m_VertexArray, 1, 3, GL_FLOAT, GL_FALSE, 0);
     glVertexArrayAttribBinding(m_VertexArray, 1, 1);
+//#endif
 }
 void TetrisAppLayer::UpdateCube()
 {
-
+  
 }
-void TetrisAppLayer::RenderCubeVertices() 
-{
 
+/*void TetrisAppLayer::RenderCubeVertices()
+{
+#if USE_OPENGL && OPENGL_VERSION_MAJOR == 1 
+    auto RenderCube_GL1 = []()
+    {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glTranslatef(0.0f, 0.0f, -5.0f);
+        glRotatef(m_Angle, 0.0f, 1.0f, 0.0f);
+
+        glBegin(GL_TRIANGLES);
+        for (int i = 0; i < 36; ++i)
+        {
+            unsigned short idx = triangle_indices[i];
+
+            glColor3f(
+                vertex_colors[idx * 3 + 0],
+                vertex_colors[idx * 3 + 1],
+                vertex_colors[idx * 3 + 2]
+            );
+
+            glVertex3f(
+                vertices[idx * 3 + 0],
+                vertices[idx * 3 + 1],
+                vertices[idx * 3 + 2]
+            );
+        }
+        glEnd();
+    }
+#elif USE_OPENGL && OPENGL_VERSION_MAJOR == 2
+    auto RenderCube_GL20 = [&](const float* mvp)
+        {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+            glUseProgram(m_Shader);
+    
+            GLint mvpLoc = glGetUniformLocation(m_Shader, "uMVP");
+            GLint posLoc = glGetAttribLocation(m_Shader, "aPos");
+            GLint colorLoc = glGetAttribLocation(m_Shader, "aColor");
+    
+            glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, mvp);
+    
+            glBindBuffer(GL_ARRAY_BUFFER, gPosBuffer);
+            glEnableVertexAttribArray(posLoc);
+            glVertexAttribPointer(posLoc, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    
+            glBindBuffer(GL_ARRAY_BUFFER, gColorBuffer);
+            glEnableVertexAttribArray(colorLoc);
+            glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
+            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, (void*)0);
+    
+            glDisableVertexAttribArray(posLoc);
+            glDisableVertexAttribArray(colorLoc);
+        };
+#elif USE_OPENGL && OPENGL_VERSION_MAJOR == 3
+    auto 
+#endif
+}*/
+
+
+
+void TetrisAppLayer::InitializeCubeV1()
+{
+    float vertices[] = {
+        // Front face
+         0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+        // Back face
+        0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+    };
+
+    float vertex_colors[] = {
+        1.0f, 0.4f, 0.6f,
+        1.0f, 0.9f, 0.2f,
+        0.7f, 0.3f, 0.8f,
+        0.5f, 0.3f, 1.0f,
+        0.2f, 0.6f, 1.0f,
+        0.6f, 1.0f, 0.4f,
+        0.6f, 0.8f, 0.8f,
+        0.4f, 0.8f, 0.8f,
+    };
+
+    unsigned short triangle_indices[] = {
+        0, 1, 2,  2, 3, 0,   // Front
+        0, 3, 7,  7, 4, 0,   // Right
+        2, 6, 7,  7, 3, 2,   // Bottom
+        1, 5, 6,  6, 2, 1,   // Left
+        4, 7, 6,  6, 5, 4,   // Back
+        5, 1, 0,  0, 4, 5,   // Top
+    };
+
+#if USE_OPENGL && OPENGL_VERSION_MAJOR == 1
+    // GL 1.x — fixed-function, no buffers needed
+    glEnable(GL_DEPTH_TEST);
+    // Projection is set once here; modelview is rebuilt each frame in RenderCubeVertices
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45.0, 1024.0 / 768.0, 0.1, 100.0);
+    glMatrixMode(GL_MODELVIEW);
+
+#elif USE_OPENGL && OPENGL_VERSION_MAJOR == 2
+    glEnable(GL_DEPTH_TEST);
+
+    glGenBuffers(1, &m_PosBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m_PosBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &m_ColorBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m_ColorBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_colors), vertex_colors, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &m_IndexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(triangle_indices), triangle_indices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+#elif USE_OPENGL && OPENGL_VERSION_MAJOR == 3
+    glEnable(GL_DEPTH_TEST);
+
+    glGenVertexArrays(1, &m_VertexArray);
+    glBindVertexArray(m_VertexArray);
+
+    glGenBuffers(1, &m_PosBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m_PosBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glGenBuffers(1, &m_ColorBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m_ColorBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_colors), vertex_colors, GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glEnableVertexAttribArray(1);
+
+    glGenBuffers(1, &m_IndexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(triangle_indices), triangle_indices, GL_STATIC_DRAW);
+
+    glBindVertexArray(0);
+
+#elif USE_OPENGL && OPENGL_VERSION_MAJOR >= 4
+    // GL 4.5+ — Direct State Access (DSA), no bind-to-modify
+    glEnable(GL_DEPTH_TEST);
+
+    glCreateVertexArrays(1, &m_VertexArray);
+
+    glCreateBuffers(1, &m_PosBuffer);
+    glCreateBuffers(1, &m_ColorBuffer);
+    glCreateBuffers(1, &m_IndexBuffer);
+
+    glNamedBufferData(m_PosBuffer, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glNamedBufferData(m_ColorBuffer, sizeof(vertex_colors), vertex_colors, GL_STATIC_DRAW);
+    glNamedBufferData(m_IndexBuffer, sizeof(triangle_indices), triangle_indices, GL_STATIC_DRAW);
+
+    // Bind buffers into VAO binding slots
+    glVertexArrayVertexBuffer(m_VertexArray, 0, m_PosBuffer, 0, 3 * sizeof(float));
+    glVertexArrayVertexBuffer(m_VertexArray, 1, m_ColorBuffer, 0, 3 * sizeof(float));
+    glVertexArrayElementBuffer(m_VertexArray, m_IndexBuffer);
+
+    // Attribute 0: position (from binding slot 0)
+    glEnableVertexArrayAttrib(m_VertexArray, 0);
+    glVertexArrayAttribFormat(m_VertexArray, 0, 3, GL_FLOAT, GL_FALSE, 0);
+    glVertexArrayAttribBinding(m_VertexArray, 0, 0);
+
+    // Attribute 1: color (from binding slot 1)
+    glEnableVertexArrayAttrib(m_VertexArray, 1);
+    glVertexArrayAttribFormat(m_VertexArray, 1, 3, GL_FLOAT, GL_FALSE, 0);
+    glVertexArrayAttribBinding(m_VertexArray, 1, 1);
+#endif
+}
+
+
+void TetrisAppLayer::RenderCubeVertices()
+{
+    glm::mat4 mvp = m_Camera.m_Projection * m_Camera.m_View *
+    glm::rotate(glm::mat4(1.0f), glm::radians(m_Angle), glm::vec3(0.0f, 1.0f, 0.0f));
+
+#if USE_OPENGL && OPENGL_VERSION_MAJOR == 1
+    // Fixed-function: no shader, no VAO — feed vertices inline
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glTranslatef(0.0f, 0.0f, -5.0f);
+    glRotatef(m_Angle, 0.0f, 1.0f, 0.0f);
+
+    // Index + vertex data stored as static locals (GL1 has no GPU buffers)
+    static float vertices[] = {
+         0.5f,  0.5f,  0.5f,  -0.5f,  0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,   0.5f, -0.5f,  0.5f,
+         0.5f,  0.5f, -0.5f,  -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,   0.5f, -0.5f, -0.5f,
+    };
+    static float vertex_colors[] = {
+        1.0f,0.4f,0.6f, 1.0f,0.9f,0.2f, 0.7f,0.3f,0.8f, 0.5f,0.3f,1.0f,
+        0.2f,0.6f,1.0f, 0.6f,1.0f,0.4f, 0.6f,0.8f,0.8f, 0.4f,0.8f,0.8f,
+    };
+    static unsigned short triangle_indices[] = {
+        0,1,2, 2,3,0,  0,3,7, 7,4,0,  2,6,7, 7,3,2,
+        1,5,6, 6,2,1,  4,7,6, 6,5,4,  5,1,0, 0,4,5,
+    };
+
+    glBegin(GL_TRIANGLES);
+    for (int i = 0; i < 36; ++i)
+    {
+        unsigned short idx = triangle_indices[i];
+        glColor3f(vertex_colors[idx * 3 + 0], vertex_colors[idx * 3 + 1], vertex_colors[idx * 3 + 2]);
+        glVertex3f(vertices[idx * 3 + 0], vertices[idx * 3 + 1], vertices[idx * 3 + 2]);
+    }
+    glEnd();
+
+#elif USE_OPENGL && OPENGL_VERSION_MAJOR == 2
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glUseProgram(m_Shader);
+
+    GLint mvpLoc = glGetUniformLocation(m_Shader, "uMVP");
+    GLint posLoc = glGetAttribLocation(m_Shader, "aPos");
+    GLint colorLoc = glGetAttribLocation(m_Shader, "aColor");
+
+    glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_PosBuffer);
+    glEnableVertexAttribArray(posLoc);
+    glVertexAttribPointer(posLoc, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_ColorBuffer);
+    glEnableVertexAttribArray(colorLoc);
+    glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, (void*)0);
+
+    glDisableVertexAttribArray(posLoc);
+    glDisableVertexAttribArray(colorLoc);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+#elif USE_OPENGL && OPENGL_VERSION_MAJOR == 3
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glUseProgram(m_Shader);
+
+    glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(mvp));
+
+    glBindVertexArray(m_VertexArray);   // VAO already has attrib pointers + EBO baked in
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, (void*)0);
+    glBindVertexArray(0);
+
+#elif USE_OPENGL && OPENGL_VERSION_MAJOR >= 4
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+   //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   //
+   //glEnable(GL_DEPTH_TEST);
+   //glEnable(GL_CULL_FACE);
+   //glFrontFace(GL_CCW);
+   //glCullFace(GL_BACK);
+    glUseProgram(m_Shader);
+
+    glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(mvp));
+
+    glBindVertexArray(m_VertexArray);   // DSA VAO — same bind-and-draw as GL3
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, (void*)0);
+    glBindVertexArray(0);
+#endif
 }

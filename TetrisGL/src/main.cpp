@@ -5,6 +5,17 @@
 
 int main() 
 {
+
+#ifdef USE_OPENGL
+    #if OPENGL_VERSION_MAJOR >= 4
+        std::cout << "Use modern OpenGL 4.x rendering path\n";
+    #elif OPENGL_VERSION_MAJOR == 3
+        std::cout << "Use OpenGL 3.x rendering path\n";
+    #else
+        std::cout << "Use legacy OpenGL path\n";
+    #endif
+#endif
+
     Core::ApplicationSpecification appSpec;
     appSpec.Name = "TetrisGL";
     int width = 1024;

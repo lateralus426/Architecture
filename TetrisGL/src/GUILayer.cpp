@@ -3,9 +3,27 @@
 #include "Models.h"
 #include "Core/Application.h"
 
-#ifdef USE_OPENGL
-    //#include <glad/glad.h>  // Initialize with gladLoadGL()
-    //#include "imgui_impl_glfw.h"
+static constexpr const char* GetImGuiGlslVersion()
+{
+    std::cout << "[Iamgui] Opengl Version Major:" << OPENGL_VERSION_MAJOR << " Minor :" << OPENGL_VERSION_MINOR << "\n"; 
+#if OPENGL_VERSION_MAJOR >= 4
+    return "#version 460"; 
+#elif OPENGL_VERSION_MAJOR == 3 && OPENGL_VERSION_MINOR >= 3
+    return "#version 330";
+#elif OPENGL_VERSION_MAJOR == 3 && OPENGL_VERSION_MINOR >= 2
+    return "#version 150";
+#else
+    return "#version 130";
+#endif
+}
+
+
+#if defined(USE_OPENGL) && OPENGL_VERSION_MAJOR >= 3
+    #include "imgui_impl_glfw.h"
+    #include "imgui_impl_opengl3.h"
+#elif defined(USE_OPENGL) && OPENGL_VERSION_MAJOR == 2
+    #include "imgui_impl_glfw.h"
+    #include "imgui_impl_opengl2.h"
 #elif defined(USE_VULKAN)
     #include "imgui_impl_glfw.h"
     #include "imgui_impl_vulkan.h"
@@ -23,11 +41,11 @@
     #include "imgui_impl_dx12.h"
 #endif
 
-#if OPENGL_VERSION GREATER_EQUAL 3
-#include "imgui_impl_opengl3.h"
-#elif OPENGL_VERSION STREQUAL "2"
-#include "imgui_impl_opengl2.h"
-#endif
+//#if OPENGL_VERSION GREATER_EQUAL 3
+//#include "imgui_impl_opengl3.h"
+//#elif OPENGL_VERSION STREQUAL "2"
+//#include "imgui_impl_opengl2.h"
+//#endif
 
 GUILayer::GUILayer()
 {
@@ -43,17 +61,30 @@ GUILayer::GUILayer()
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
 
-
+	m_GameState = nullptr;
     ImGui_ImplGlfw_InitForOpenGL(Core::Application::Get().GetWindow()->GetHandle(), true);
     // Setup Platform/Renderer bindings
-#if defined(IMGUI_IMPL_OPENGL_LOADER_GLAD)
-    ImGui_ImplOpenGL3_Init("#version 330");
+#if defined(USE_OPENGL) && OPENGL_VERSION_MAJOR >= 3
+    const char* glsl_version = GetImGuiGlslVersion();
+	std::cout << "GUILayer::GUILayer() glsl_version:" << glsl_version << "\n";
+
+    ImGui_ImplOpenGL3_Init(glsl_version);
+#elif defined(USE_OPENGL) && OPENGL_VERSION_MAJOR == 2
+    const char* glsl_version = GetImGuiGlslVersion();
+    std::cout << "GUILayer::GUILayer() glsl_version:" << glsl_version << "\n";
+
+    ImGui_ImplOpenGL2_Init(glsl_version);
 #endif
+
 }
 
 GUILayer::~GUILayer()
 {
+#if defined(USE_OPENGL) && OPENGL_VERSION_MAJOR >= 3
     ImGui_ImplOpenGL3_Shutdown();
+#elif defined(USE_OPENGL) && OPENGL_VERSION_MAJOR == 2
+    ImGui_ImplOpenGL2_Shutdown();
+#endif
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
@@ -67,7 +98,11 @@ void GUILayer::OnUpdate(float ts)
 void GUILayer::OnRender()
 {
     // Start the Dear ImGui frame
+#if defined(USE_OPENGL) && OPENGL_VERSION_MAJOR >= 3
     ImGui_ImplOpenGL3_NewFrame();
+#elif defined(USE_OPENGL) && OPENGL_VERSION_MAJOR == 2
+    ImGui_ImplOpenGL2_NewFrame();
+#endif  
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     ImGui::SetNextWindowPos(ImVec2(10, 10));
@@ -93,7 +128,11 @@ void GUILayer::OnRender()
  
 
     ImGui::Render();
+#if defined(USE_OPENGL) && OPENGL_VERSION_MAJOR >= 3
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#elif defined(USE_OPENGL) && OPENGL_VERSION_MAJOR == 2
+    ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+#endif
 
 }
 

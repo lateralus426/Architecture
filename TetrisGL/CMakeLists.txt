@@ -1,6 +1,5 @@
-
-
 # TetrisApp/CMakeLists.txt
+
 set(SOURCES
     src/main.cpp
     src/TetrisAppLayer.h
