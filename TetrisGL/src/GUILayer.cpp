@@ -73,7 +73,7 @@ GUILayer::GUILayer()
     const char* glsl_version = GetImGuiGlslVersion();
     std::cout << "GUILayer::GUILayer() glsl_version:" << glsl_version << "\n";
 
-    ImGui_ImplOpenGL2_Init(glsl_version);
+    ImGui_ImplOpenGL2_Init();
 #endif
 
 }
