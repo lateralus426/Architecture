@@ -1,9 +1,23 @@
 #pragma once
 
+
+#include <cstdint>
+#include <filesystem>
+
+
+
+#if OPENGL_VERSION_MAJOR == 1 // need to remove this check and use GLAD for all versions
+// In OpenGL 1.x, vogliamo che GLFW includa i vecchi header standard
+#include <Windows.h>
+#include <GLFW/glfw3.h> // Questo includerà internamente <GL/gl.h> in modo sicuro
+#include <GL/glu.h>
+#else
+// In OpenGL Moderno, usiamo GLAD e diciamo a GLFW di NON includere nulla
+//#define GLFW_INCLUDE_NONE
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
+#endif
 
-#include <filesystem>
 
 namespace Renderer {
 

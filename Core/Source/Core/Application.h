@@ -1,5 +1,10 @@
 #pragma once
 
+// [SCOPE LOCK: DO NOT MODIFY ANY CODE OUTSIDE SPECIFICALLY REQUESTED CHANGES]
+// This file manages core application lifecycle and layer stack management.
+// Only modify explicitly requested functions or structures.
+// Report out-of-scope issues but do not fix them.
+
 #include "Layer.h"
 #include "Window.h"
 #include "Event.h"

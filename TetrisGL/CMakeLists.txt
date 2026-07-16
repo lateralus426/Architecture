@@ -4,6 +4,8 @@ set(SOURCES
     src/main.cpp
     src/TetrisAppLayer.h
     src/TetrisAppLayer.cpp
+    src/CubeLayer.h
+    src/CubeLayer.cpp
     src/Models.h
     src/Models.cpp
     src/gl_loader.h

@@ -1,17 +1,29 @@
 #pragma once
 
-//#include "gl_loader.h"
-//#include <GLFW/glfw3.h>
-
-#include <iostream>
+#include <glm/glm.hpp>
 #include <vector>
 #include <random>
 #include <chrono>
-#include <algorithm>
+
 #include <array>
 
 
+// Camera data-structure 
+struct Camera {
+    glm::vec3 m_Position;
+    glm::vec3 m_Direction;
+    glm::vec3 m_Up;
 
+    // Camera parameters
+    float m_Fov;
+    float m_AspectRatio;
+    float m_NearPlane;
+    float m_FarPlane;
+
+    glm::mat4x4 m_View;
+    glm::mat4x4 m_Projection;
+    glm::ivec2 m_ScreenSize;
+};
 
 
 // ==================== Compile-Time API Selection ====================
@@ -19,9 +31,14 @@
 
 // ==================== Constants ====================
 
-static const int BOARD_WIDTH = 10;
-static const int BOARD_HEIGHT = 20;
-static const float CELL_SIZE = 1.0f;
+constexpr int BOARD_WIDTH = 10;
+constexpr int BOARD_HEIGHT = 20;
+constexpr float CELL_SIZE = 1.0f;
+constexpr int VERTS_PER_QUAD = 6;
+constexpr float QUAD_INSET = 0.05f;
+constexpr float LINE_THICKNESS = 0.02f;
+
+
 
 // ==================== Color Types ====================
 
@@ -129,192 +146,4 @@ struct Vertex {
     float r, g, b;
 };
 
-//struct VertexVec
-//{
-//    glm::vec3 Position;
-//    glm::vec3 Color;
-//};
-const int VERTS_PER_QUAD = 6;
-
-// ==================== Main ====================
-
-//int main() {
-//    if (!glfwInit()) {
-//        std::cerr << "Failed to initialize GLFW" << std::endl;
-//        return -1;
-//    }
-//
-//    int width = 1024;
-//    int height = 768;
-//
-//#ifdef GL3_PLUS_SUPPORT
-//    std::cout << "Requesting OpenGL 3.3 Core Profile\n";
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-//    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-//#ifdef __APPLE__
-//    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-//#endif
-//#else
-//    std::cout << "Requesting OpenGL 2.1 Legacy Profile\n";
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-//#endif
-//
-//    GLFWwindow* window = glfwCreateWindow(width, height, "Tetris OpenGL", nullptr, nullptr);
-//    if (!window) {
-//        std::cerr << "Failed to create GLFW window" << std::endl;
-//        glfwTerminate();
-//        return -1;
-//    }
-//
-//    glfwMakeContextCurrent(window);
-//    glfwSetWindowSizeCallback(window, [](GLFWwindow* win, int width, int height) {
-//        glViewport(0, 0, width, height);
-//        (void)win;
-//        });
-//
-//    glewExperimental = GL_TRUE;
-//    if (glewInit() != GLEW_OK) {
-//        std::cerr << "Failed to initialize GLEW" << std::endl;
-//        return -1;
-//    }
-//
-//    glViewport(0, 0, width, height);
-//    glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
-//
-//    Renderer renderer;
-//    renderer.init();
-//
-//#ifdef GL3_PLUS_SUPPORT
-//    renderer.setupShader("shaders/modern_vs.glsl", "shaders/modern_fs.glsl");
-//#else
-//    renderer.setupShader("shaders/legacy_vs.glsl", "shaders/legacy_fs.glsl");
-//#endif
-//    std::cout << "Finished compiling the shaders\n";
-//
-//    GameState state;
-//    state.Init();
-//
-//    
-//
-//    // One-shot keys: trigger once per press (UP, SPACE, P, R, LEFT, RIGHT)
-//    bool keysTriggered[GLFW_KEY_LAST + 1] = { false };
-//
-//    while (!glfwWindowShouldClose(window)) {
-//    
-//
-//        double currentTime = glfwGetTime();
-//
-//        // Auto-drop (gravity)
-//        if (!state.m_GameOver && !state.m_Paused) {
-//            if ((currentTime - state.m_LastDropTime) * 1000.0f > state.m_DropInterval) {
-//                state.MoveDown();
-//                state.m_LastDropTime = currentTime;
-//            }
-//        }
-//
-//        // Continuous soft drop: DOWN fires every frame while held
-//        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-//            if (!state.m_GameOver && !state.m_Paused) {
-//                state.MoveDown();
-//                state.m_LastDropTime = currentTime;
-//            }
-//        }
-//
-//        // One-shot keys: trigger once per press
-//        for (int i = 0; i <= GLFW_KEY_LAST; ++i) {
-//            bool pressed = (glfwGetKey(window, i) == GLFW_PRESS);
-//
-//            if (pressed && !keysTriggered[i]) {
-//                if (i == GLFW_KEY_LEFT) { state.MoveLeft(); }
-//                else if (i == GLFW_KEY_RIGHT) { state.MoveRight(); }
-//                else if (i == GLFW_KEY_UP) { state.Rotate(); }
-//                else if (i == GLFW_KEY_SPACE) { state.HardDrop(); }
-//                else if (i == GLFW_KEY_P) { state.m_Paused = !state.m_Paused; }
-//                else if (i == GLFW_KEY_R) {
-//                    if (state.m_GameOver) {
-//                        state.Init();
-//                        state.m_LastDropTime = currentTime;
-//                    }
-//                }
-//                keysTriggered[i] = true;
-//            }
-//
-//            if (!pressed) {
-//                keysTriggered[i] = false; // reset so next press can fire
-//            }
-//        }
-//
-//        glClear(GL_COLOR_BUFFER_BIT);
-//
-//        // Aspect-correct projection
-//        int w, h;
-//        glfwGetWindowSize(window, &w, &h);
-//        float aspect = (float)w / (float)h;
-//        float boardAspect = (float)BOARD_WIDTH / (float)BOARD_HEIGHT;
-//
-//        float halfW, halfH;
-//        if (aspect > boardAspect) {
-//            halfH = BOARD_HEIGHT / 2.0f + 1.0f;
-//            halfW = halfH * aspect;
-//        }
-//        else {
-//            halfW = BOARD_WIDTH / 2.0f + 1.0f;
-//            halfH = halfW / aspect;
-//        }
-//
-//        Matrix4 mvp = Matrix4::ortho(
-//            -halfW, halfW,
-//            -halfH, halfH,
-//            -1.0f, 1.0f
-//        );
-//
-//        if (renderer.shader) {
-//            renderer.shader->use();
-//            renderer.shader->setMat4("uMVP", mvp.m);
-//        }
-//
-//        // Pure render: reads state, produces vertices
-//        renderer.render(state, w, h);
-//
-//        // Render imgui overlay (score, level, speed)
-//        {
-//            ImGui::SetNextWindowPos(ImVec2(10, 10));
-//            ImGui::SetNextWindowSize(ImVec2(200, 120));
-//            ImGui::Begin("Info", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs);
-//            ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "SCORE: %d", state.m_Score);
-//            ImGui::TextColored(ImVec4(0.5f, 1.0f, 0.5f, 1.0f), "LEVEL: %d", state.m_Level);
-//
-//            // Calculate speed (higher = faster)
-//            int speed = (state.m_DropInterval > 0) ? (1000 / state.m_DropInterval) : 10;
-//            ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), "SPEED: %d", speed);
-//
-//            // Show game state
-//            if (state.m_GameOver) {
-//                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "GAME OVER");
-//                ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.7f), "Press R to restart");
-//            }
-//            if (state.m_Paused) {
-//                ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "PAUSED");
-//                ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.7f), "Press P to resume");
-//            }
-//            ImGui::End();
-//        }
-//
-//        ImGui::Render();
-//        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-//
-//        glfwSwapBuffers(window);
-//        glfwPollEvents();
-//    }
-//
-//    // Cleanup
-//    ImGui_ImplOpenGL3_Shutdown();
-//    ImGui_ImplGlfw_Shutdown();
-//    ImGui::DestroyContext();
-//
-//    glfwTerminate();
-//    return 0;
-//}
 

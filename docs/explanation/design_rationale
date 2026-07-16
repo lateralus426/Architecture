@@ -1,0 +1,57 @@
+# Design Rationale
+
+This document explains the "why" behind key architectural decisions in the Architecture Engine.
+
+## Why a Layered Architecture?
+
+The engine organizes functionality into discrete **Layers** stacked within a single `LayerStack`. This choice brings several advantages:
+
+* **Concern Separation:** Each layer addresses a single responsibility (e.g., input, rendering, UI, gameplay). Changes to one layer rarely ripple into others.
+* **Dynamic Composition:** Layers can be pushed/popped at runtime, enabling features like overlay toggles, debug panels, or scene swaps without rewriting the core.
+* **Event-Driven Interaction:** Layers communicate primarily through an event queue, decoupling producers from consumers.
+
+## Why a Templated Layer Stack?
+
+`Application::PushLayer<TLayer>()` uses a template + `std::make_unique<TLayer>()` pattern. This provides:
+
+* **Type Safety:** The compiler guarantees only `Layer` subclasses are accepted (`std::is_base_of_v`).
+* **Automatic Lifetime Management:** `std::unique_ptr` ensures deterministic destruction when the application shuts down.
+* **Zero-Cost Abstraction:** No virtual factory indirection; the type is known at compile time.
+
+## Why RAII for Window and Layers?
+
+The `Window` class uses explicit `Create()`/`Destroy()` methods rather than constructor/destructor for OS resource allocation. This was likely chosen because:
+
+* GLFW/OpenGL context creation can fail and requires error reporting.
+* Resource creation often depends on a successfully initialized `Application`/event system.
+
+However, modern best practice suggests wrapping these in a guard or using factory functions that return `std::expected` or throw on failure, so we avoid partially-initialized objects.
+
+## Why Backend Selection at CMake Time?
+
+The top-level `CMakeLists.txt` uses `option(USE_OPENGL ...)`, `option(USE_VULKAN ...)`, etc., and injects `#define`s accordingly. This approach:
+
+* **Avoids Runtime Overhead:** No virtual dispatch or dynamic backend loading; the chosen backend is compiled in.
+* **Minimizes Binary Size:** Only the selected backend's code and dependencies are linked.
+* **Leverages ImGui's Backend Model:** ImGui itself uses compile-time backend selection, making this a natural fit.
+
+Trade-off: Switching backends requires a recompile. For most engines (and this educational project), that trade-off is acceptable.
+
+## Why Opaque Handles in the Renderer?
+
+The `Renderer` namespace exposes structs like `Texture` and `Framebuffer` that currently wrap OpenGL types (`GLuint`). The intent is to provide a **backend-agnostic façade**:
+
+* Engine code calls `Renderer::CreateTexture(...)` without knowing the underlying API.
+* When a new backend (Vulkan, DirectX) is enabled, only the `Renderer` implementation changes; caller code remains stable.
+
+**Current gap:** The struct members still name `GLuint`. The next refactor should make these truly opaque (e.g., a `typedef void* NativeHandle` or a tagged union) so the façade holds regardless of backend.
+
+## Why GLM for Math?
+
+GLM (OpenGL Mathematics) provides a header-only, GLSL-compatible math library. It is the de-facto standard for C++ graphics code and integrates cleanly with both OpenGL and Vulkan (via `GLM_FORCE_DEPTH_ZERO_TO_ONE` for Vulkan clip space).
+
+## Future Direction
+
+* Implement a true `IRenderer` interface with per-backend subclasses.
+* Replace `dynamic_cast` in `GetLayer<>` with a type-indexed map for O(1) lookup.
+* Introduce `std::expected`-based error handling for resource creation.

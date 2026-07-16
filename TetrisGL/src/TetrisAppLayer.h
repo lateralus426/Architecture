@@ -11,20 +11,20 @@ namespace Core {
 	class WindowClosedEvent;
 };
 
-struct Camera {
-    glm::vec3 m_Position;
-    glm::vec3 m_Direction;
-    glm::vec3 m_Up;
 
-    // Camera parameters
-    float m_Fov;
-    float m_AspectRatio;
-    float m_NearPlane;
-    float m_FarPlane;
+struct VertexBuffer {
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
 
-    glm::mat4x4 m_View;
-    glm::mat4x4 m_Projection;
-    glm::ivec2 ScreenSize;
+    void reserve(size_t quadCount) {
+        vertices.reserve(quadCount * 4);
+        indices.reserve(quadCount * 6);
+    }
+
+    void clear() {
+        vertices.clear();
+        indices.clear();
+    }
 };
 
 class TetrisAppLayer : public Core::Layer
@@ -43,12 +43,14 @@ private:
     bool OnWindowClosed(Core::WindowClosedEvent& event);
 private:
     uint32_t m_Shader = 0;
-    uint32_t m_VertexArray = 0;
+    uint32_t m_VertexArray = 0;   // VAO
     uint32_t m_VertexBuffer = 0;  // handle to the vertex buffer object (VBO)
-    // TODO: change to uint32_t
+   
     uint32_t m_PosBuffer = 0;
     uint32_t m_ColorBuffer = 0;
     uint32_t m_IndexBuffer = 0;
+
+	bool m_Initialized = false;
 
     float m_Time = 0.0f;
     float m_Angle = 0.0f;
@@ -57,8 +59,9 @@ private:
     glm::vec2 m_MousePosition{ 0.0f };
     glm::vec2 m_FlamePosition{ 0.0f };
     struct GameState m_GameState;
-
+    class GLFWwindow* m_WindowHandle;
 	Camera m_Camera;
+    std::array<bool, GLFW_KEY_LAST + 1> m_KeysTriggered{ false };
 
 public:
     const GameState& GetGameState() const { return m_GameState;}
@@ -86,40 +89,6 @@ public:
     void RenderCubeVertices();
 
 };
-  /*
-
-#ifdef GL3_PLUS_SUPPORT
-    std::cout << "Requesting OpenGL 3.3 Core Profile\n";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-#else
-    std::cout << "Requesting OpenGL 2.1 Legacy Profile\n";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-#endif
-
-*/
-   // glfwMakeContextCurrent(window);
-   // glfwSetWindowSizeCallback(window, [](GLFWwindow* win, int width, int height) {
-   //     glViewport(0, 0, width, height);
-   //     (void)win;
-   //     });
-
-    //glewExperimental = GL_TRUE;
-    //if (glewInit() != GLEW_OK) {
-    //    std::cerr << "Failed to initialize GLEW" << std::endl;
-    //    return -1;
-    //}
-
-    //glViewport(0, 0, width, height);
-    //glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
-//
-    //Renderer renderer;
-    //renderer.init();
-//
+ 
 
    

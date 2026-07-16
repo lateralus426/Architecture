@@ -1,6 +1,7 @@
 #include<iostream>
 #include "Core/Application.h"
 #include "TetrisAppLayer.h"
+#include "CubeLayer.h"
 #include "GUILayer.h"
 
 int main() 
@@ -11,7 +12,9 @@ int main()
         std::cout << "Use modern OpenGL 4.x rendering path\n";
     #elif OPENGL_VERSION_MAJOR == 3
         std::cout << "Use OpenGL 3.x rendering path\n";
-    #else
+#elif OPENGL_VERSION_MAJOR == 2
+	std::cout << "Use OpenGL 2.x rendering path\n";
+#else
         std::cout << "Use legacy OpenGL path\n";
     #endif
 #endif
@@ -24,12 +27,15 @@ int main()
     appSpec.WindowSpec.Height = height;
 
     Core::Application application(appSpec);
-	application.PushLayer<TetrisAppLayer>();
+	//application.PushLayer<CubeLayer>();
+ 
+    application.PushLayer<TetrisAppLayer>();
     auto tetrisLayer = application.GetLayer<TetrisAppLayer>();
-    if(tetrisLayer == nullptr){
+    if (tetrisLayer == nullptr) {
         std::cout << "Invalid Tetris Layer\n";
         return 0;
     }
+    //
 	application.PushLayer<GUILayer>();
     auto guiLayer = application.GetLayer<GUILayer>();
     if(guiLayer != nullptr){

@@ -2,6 +2,7 @@
 #include "GUILayer.h"
 #include "Models.h"
 #include "Core/Application.h"
+#include "Core/Renderer/Renderer.h"
 
 static constexpr const char* GetImGuiGlslVersion()
 {
@@ -18,34 +19,8 @@ static constexpr const char* GetImGuiGlslVersion()
 }
 
 
-#if defined(USE_OPENGL) && OPENGL_VERSION_MAJOR >= 3
-    #include "imgui_impl_glfw.h"
-    #include "imgui_impl_opengl3.h"
-#elif defined(USE_OPENGL) && OPENGL_VERSION_MAJOR == 2
-    #include "imgui_impl_glfw.h"
-    #include "imgui_impl_opengl2.h"
-#elif defined(USE_VULKAN)
-    #include "imgui_impl_glfw.h"
-    #include "imgui_impl_vulkan.h"
-#elif defined(USE_DX9)
-    #include "imgui_impl_win32.h"
-    #include "imgui_impl_dx9.h"
-#elif defined(USE_DX10)
-    #include "imgui_impl_win32.h"
-    #include "imgui_impl_dx10.h"
-#elif defined(USE_DX11)
-    #include "imgui_impl_win32.h"
-    #include "imgui_impl_dx11.h"
-#elif defined(USE_DX12)
-    #include "imgui_impl_win32.h"
-    #include "imgui_impl_dx12.h"
-#endif
 
-//#if OPENGL_VERSION GREATER_EQUAL 3
-//#include "imgui_impl_opengl3.h"
-//#elif OPENGL_VERSION STREQUAL "2"
-//#include "imgui_impl_opengl2.h"
-//#endif
+
 
 GUILayer::GUILayer()
 {
@@ -64,25 +39,31 @@ GUILayer::GUILayer()
 	m_GameState = nullptr;
     ImGui_ImplGlfw_InitForOpenGL(Core::Application::Get().GetWindow()->GetHandle(), true);
     // Setup Platform/Renderer bindings
-#if defined(USE_OPENGL) && OPENGL_VERSION_MAJOR >= 3
+#if defined(USE_OPENGL) && OPENGL_VERSION_MAJOR >= 2
     const char* glsl_version = GetImGuiGlslVersion();
 	std::cout << "GUILayer::GUILayer() glsl_version:" << glsl_version << "\n";
 
     ImGui_ImplOpenGL3_Init(glsl_version);
-#elif defined(USE_OPENGL) && OPENGL_VERSION_MAJOR == 2
+#elif defined(USE_OPENGL) && OPENGL_VERSION_MAJOR == 1
     const char* glsl_version = GetImGuiGlslVersion();
     std::cout << "GUILayer::GUILayer() glsl_version:" << glsl_version << "\n";
-
     ImGui_ImplOpenGL2_Init();
+    // 3. Reset legacy state before ImGui draw
+    //glDisable(GL_LIGHTING);
+    //glDisable(GL_COLOR_MATERIAL);
+    //glBindBuffer(GL_ARRAY_BUFFER, 0);
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    //glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
 #endif
 
 }
 
 GUILayer::~GUILayer()
 {
-#if defined(USE_OPENGL) && OPENGL_VERSION_MAJOR >= 3
+#if defined(USE_OPENGL) && OPENGL_VERSION_MAJOR >= 2
     ImGui_ImplOpenGL3_Shutdown();
-#elif defined(USE_OPENGL) && OPENGL_VERSION_MAJOR == 2
+#elif defined(USE_OPENGL) && OPENGL_VERSION_MAJOR == 1
     ImGui_ImplOpenGL2_Shutdown();
 #endif
     ImGui_ImplGlfw_Shutdown();
@@ -98,9 +79,9 @@ void GUILayer::OnUpdate(float ts)
 void GUILayer::OnRender()
 {
     // Start the Dear ImGui frame
-#if defined(USE_OPENGL) && OPENGL_VERSION_MAJOR >= 3
+#if defined(USE_OPENGL) && OPENGL_VERSION_MAJOR >= 2
     ImGui_ImplOpenGL3_NewFrame();
-#elif defined(USE_OPENGL) && OPENGL_VERSION_MAJOR == 2
+#elif defined(USE_OPENGL) && OPENGL_VERSION_MAJOR == 1
     ImGui_ImplOpenGL2_NewFrame();
 #endif  
     ImGui_ImplGlfw_NewFrame();
@@ -128,10 +109,24 @@ void GUILayer::OnRender()
  
 
     ImGui::Render();
-#if defined(USE_OPENGL) && OPENGL_VERSION_MAJOR >= 3
+#if defined(USE_OPENGL) && OPENGL_VERSION_MAJOR >= 2
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-#elif defined(USE_OPENGL) && OPENGL_VERSION_MAJOR == 2
+#elif defined(USE_OPENGL) && OPENGL_VERSION_MAJOR == 1
+    //ImGui::Render();
+    int display_w, display_h;
+    glfwGetFramebufferSize(Core::Application::Get().GetWindow()->GetHandle(), &display_w, &display_h);
+    glViewport(0, 0, display_w, display_h);
+    //glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+    //glClear(GL_COLOR_BUFFER_BIT);
+
+    // If you are using this code with non-legacy OpenGL header/contexts (which you should not, prefer using imgui_impl_opengl3.cpp!!),
+    // you may need to backup/reset/restore other state, e.g. for current shader using the commented lines below.
+    //GLint last_program;
+    //glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
+    //glUseProgram(0);
     ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+    //auto renderData = ImGui::GetDrawData();
+    //ImGui_ImplOpenGL2_RenderDrawData(renderData);
 #endif
 
 }
